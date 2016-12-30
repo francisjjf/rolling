@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>滚啊滚</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Language" content="zh-CN" />
+	<style type="text/css">
+		body{background:#000;text-align:center;}
+		.fire{display:block; overflow:hidden; font-size:12px; position:absolute};
+		html{overflow:hidden; background:#000}
+	</style>
+</head>
+
+
+
+
+<body>
+<h1 style="color:white" >再滚两分钟的<h1>
+<p>
+<div id="timer" style="color:red">滚啊滚~</div>
+<!--
+<div id="index" style="color:red" mce_style="color:red">0~</div>
+-->
+</p>
+<canvas id="myCanvas" width="286" height="292" style="border:0px">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+ 
+<script>
+var canvas =document.getElementById("myCanvas");
+
+    var context = canvas.getContext("2d");
+
+    var image = new Image();
+    image.onload=function(){
+        context.drawImage(image,0,0);
+    }
+    image.src = "cat.png";
+
+	var index = 0;
+	var maxtime = 2*60;//一个小时，按秒计算，自己调整! 
+
+
+    function rotate(){
+		if(maxtime <= 0){
+			return;
+		}
+		
+		index = (index+1) % 50;
+        var x = canvas.width/2; //画布宽度的一半
+        var y = canvas.height/2;//画布高度的一半
+
+		if(index >= 1 && index < 21){
+			context.clearRect(0,0, canvas.width, canvas.height);//先清掉画布上的内容
+			context.translate(x,y);//将绘图原点移到画布中点
+			context.rotate((Math.PI/180)*18);//旋转角度
+			context.translate(-x,-y);//将画布原点移动
+			context.drawImage(image,0,0);//绘制图片   
+
+		}
+		if(index >= 25 && index < 45){
+			context.clearRect(0,0, canvas.width, canvas.height);//先清掉画布上的内容
+			context.translate(x,y);//将绘图原点移到画布中点
+			context.rotate(0-(Math.PI/180)*18);//旋转角度
+			context.translate(-x,-y);//将画布原点移动
+			context.drawImage(image,0,0);//绘制图片   
+
+		}
+  
+    }
+    self.setInterval("rotate()",100);
+	
+	
+	
+	function CountDown(){ 
+		if(maxtime>=0){ 
+			minutes = Math.floor(maxtime/60); 
+			seconds = Math.floor(maxtime%60); 
+			msg = "滚啊滚剩余："+minutes+"分"+seconds+"秒"; 
+			document.all["timer"].innerHTML=msg; 
+			--maxtime; 
+		} 
+		else{ 
+			clearInterval(timer); 
+			msg = "滚完啦~~~"; 
+			document.all["timer"].innerHTML=msg; 
+			fireworks().init();
+		} 
+	} 
+timer = setInterval("CountDown()",1000); 
+
+
+
+
+
+var Fire = function(r, color) {
+	this.radius = r || 12;
+	this.color = color;
+	this.xpos = 0;
+	this.ypos = 0;
+	this.zpos = 0;
+	this.vx = 0;
+	this.vy = 0;
+	this.vz = 0;
+	this.mass = 1;
+	this.x =0;
+	this.y=0;
+	this.p = document.createElement("span");
+	this.p.className = "fire";
+	this.p.innerHTML = "*";
+	this.p.style.fontSize = this.radius + "px";
+	this.p.style.color = "#" + this.color;
+}
+Fire.prototype = {
+	append: function(parent) {
+		parent.appendChild(this.p);
+	},
+	setSize: function(scale) {
+		this.p.style.fontSize = this.radius * scale + "px";
+	},
+	setPosition:function(x, y) {
+		this.p.style.left = x + "px";
+		this.p.style.top =  y + "px";
+	},
+	setVisible: function(b) {
+		this.p.style.display = b ? "block" : "none";
+	}
+}
+var fireworks = function() {
+	var fires = new Array();
+	var count = 150;
+	var fl = 250;
+	var vpx = 500;
+	var vpy = 300;
+	var gravity = .5;
+	var floor = 200;
+	var bounce = -.8;
+	var timer;
+	var wind = ((Math.floor(Math.random()*3) + 3)/10)*(Math.random()*2 - 1 > 0 ? 1 : -1)*.25;
+	var wpos = 0;
+	var wcount;
+	return {
+		init: function() {
+			wcount = 50 + Math.floor(Math.random() * 100);
+			for (var i=0; i<count; i++) {
+				var color = 0xFF0000;
+				color = (Math.random() * 0xFFFFFF).toString(16).toString().split(".")[0];
+				while(color.length < 6) {
+					color = "0" + color;
+				}
+				var fire = new Fire(12, color);
+				fires.push(fire);
+				fire.ypos = -100;
+				fire.vz = Math.random() * 6 - 3;
+				fire.vx = (Math.random()*2 - 1)*2 ;
+				fire.vy = Math.random()*-15 - 15;
+				fire.x = 500
+				fire.y = 600;
+				fire.append(document.body);
+			}
+			var that = this;
+			timer = setInterval(function() {
+				wpos++;
+				if (wpos >= wcount) {
+					wpos = 0;
+					wcount = 50 + Math.floor(Math.random() * 100);
+					wind = ((Math.floor(Math.random()*3) + 3)/10)*(Math.random()*2 - 1 > 0 ? 1 : -1)*.25;
+				}
+				for (var i=0;i<count; i++) {
+					that.move(fires[i]);
+				}
+			}, 30);
+		},
+		move: function(fire) {
+			fire.vy += gravity;
+			fire.x += fire.vx;
+			fire.y += fire.vy;
+			fire.vx += wind;
+			fire.setPosition(fire.x, fire.y);
+				if (fire.x < 0 || fire.x >1000 || fire.y  < 0 || fire.y  > 600) {
+					fire.vx = (Math.random()*2 - 1)*2;
+					fire.vy = Math.random()*-15 - 15;
+					fire.x = 500;
+					fire.y = 600;
+					fire.setPosition(fire.x, fire.y);
+				}
+		}
+	}
+}
+ 
+</script>
+ 
+</body>
+</html>
