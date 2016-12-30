@@ -39,7 +39,7 @@ var canvas =document.getElementById("myCanvas");
     image.src = "cat.png";
 
 	var index = 0;
-	var maxtime = 2*60;
+	var maxtime = 5;
 
 
     function rotate(){
@@ -69,15 +69,15 @@ var canvas =document.getElementById("myCanvas");
 		}
   
     }
-    self.setInterval("rotate()",100);
+    self.setInterval("rotate()",10);
 	
 	
 	
 	function CountDown(){ 
-		if(maxtime>=0){ 
+		if(maxtime>0){ 
 			minutes = Math.floor(maxtime/60); 
 			seconds = Math.floor(maxtime%60); 
-			msg = "滚啊滚剩余："+minutes+"分"+seconds+"秒"; 
+			msg = "滚啊滚剩余："+minutes+"分"+(seconds-1)+"秒"; 
 			document.all["timer"].innerHTML=msg; 
 			--maxtime; 
 		} 
@@ -95,7 +95,7 @@ timer = setInterval("CountDown()",1000);
 
 
 var Fire = function(r, color) {
-	this.radius = r || 30;
+	this.radius = r;
 	this.color = color;
 	this.xpos = 0;
 	this.ypos = 0;
@@ -149,7 +149,7 @@ var fireworks = function() {
 				while(color.length < 6) {
 					color = "0" + color;
 				}
-				var fire = new Fire(30, color);
+				var fire = new Fire(50, color);
 				fires.push(fire);
 				fire.ypos = -100;
 				fire.vz = Math.random() * 6 - 3;
